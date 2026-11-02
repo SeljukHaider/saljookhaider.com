@@ -125,8 +125,8 @@
     {
       "name": "saljookhaider.com",
       "kind": "Side project",
-      "description": "This site: a bento-grid portfolio with a working terminal, Markdown blog and RSS, deployed on Cloudflare Pages.",
-      "tech": ["Astro", "TypeScript", "Cloudflare Pages"],
+      "description": "This site: a bento-grid portfolio with a working terminal, Markdown blog and RSS, deployed on Cloudflare Workers with strict security headers.",
+      "tech": ["Astro", "TypeScript", "Cloudflare Workers"],
       "url": "https://saljookhaider.com",
       "repo": ""
     }

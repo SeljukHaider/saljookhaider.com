@@ -1,0 +1,13 @@
+{
+  "name": "Saljook Haider · Cyber Security Analyst",
+  "short_name": "Saljook",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#0d0d0e",
+  "theme_color": "#0d0d0e",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512" }
+  ]
+}

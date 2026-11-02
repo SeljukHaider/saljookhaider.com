@@ -2,15 +2,15 @@
 import Base from './Base.astro';
 import profile from '../data/profile.json';
 
-interface Props { title: string; description?: string; heading?: string; intro?: string }
-const { title, description, heading = title, intro } = Astro.props;
+interface Props { title: string; description?: string; heading?: string; intro?: string; published?: Date; noindex?: boolean }
+const { title, description, heading = title, intro, published, noindex } = Astro.props;
 ---
-<Base title={title} description={description}>
+<Base title={title} description={description} type={published ? 'article' : 'website'} published={published} noindex={noindex}>
   <header class="top">
     <a href="/" class="back">← <span class="mono">{profile.handle}</span></a>
     <nav class="small"><a href="/projects/">projects</a><a href="/blog/">blog</a><a href={profile.cv} download>cv</a></nav>
   </header>
-  <main>
+  <main id="main">
     <section class="card head">
       <h1>{heading}</h1>
       {intro && <p class="muted">{intro}</p>}
@@ -25,7 +25,7 @@ const { title, description, heading = title, intro } = Astro.props;
   .back { text-decoration: none; font-weight: 600; }
   nav { display: flex; gap: 1.1rem; }
   nav a { text-decoration: none; color: var(--muted); }
-  nav a:hover { color: var(--accent); }
+  nav a:hover { color: var(--accent-ink); }
   .head { margin-bottom: 1.1rem; }
   .head h1 { font-size: clamp(2rem, 5vw, 3rem); }
   .head p { margin: 0.6rem 0 0; max-width: 60ch; }

@@ -22,11 +22,14 @@
   --border: #e2e1dc;
   --chip: #f2f1ed;
 }
-:root, [data-accent='red'] { --accent: #ef4444; }
-[data-accent='amber'] { --accent: #f5b014; }
-[data-accent='blue'] { --accent: #3b82f6; }
-[data-accent='purple'] { --accent: #a855f7; }
-[data-accent='green'] { --accent: #22c55e; }
+:root, [data-accent='red'] { --accent: #ef4444; --on-accent: #fff; --accent-btn: #d42c2c; }
+[data-accent='amber'] { --accent: #f5b014; --on-accent: #0d0d0e; --accent-btn: #f5b014; }
+[data-accent='blue'] { --accent: #3b82f6; --on-accent: #fff; --accent-btn: #2563eb; }
+[data-accent='purple'] { --accent: #a855f7; --on-accent: #fff; --accent-btn: #8b3fe0; }
+[data-accent='green'] { --accent: #22c55e; --on-accent: #0d0d0e; --accent-btn: #22c55e; }
+/* Accent used as text: darkened on light backgrounds so it stays readable */
+:root { --accent-ink: var(--accent); }
+[data-theme='light'] { --accent-ink: color-mix(in srgb, var(--accent) 62%, #000); }
 
 * { box-sizing: border-box; }
 html { color-scheme: dark; }
@@ -44,7 +47,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 a { color: inherit; text-decoration-color: var(--accent); text-underline-offset: 3px; }
-a:hover { color: var(--accent); }
+a:hover { color: var(--accent-ink); }
 code, pre, .mono { font-family: 'JetBrains Mono Variable', ui-monospace, Menlo, monospace; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
 
@@ -59,7 +62,7 @@ code, pre, .mono { font-family: 'JetBrains Mono Variable', ui-monospace, Menlo, 
 }
 .label { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 0.4rem; }
 .muted { color: var(--muted); }
-.accent { color: var(--accent); }
+.accent { color: var(--accent-ink); }
 h1, h2, h3 { line-height: 1.2; margin: 0; letter-spacing: -0.01em; }
 .chips { display: flex; flex-wrap: wrap; gap: 0.45rem; list-style: none; padding: 0; margin: 0; }
 .chips li { background: var(--chip); border: 1px solid var(--border); border-radius: 999px; padding: 0.2rem 0.75rem; font-size: 0.82rem; }
@@ -70,8 +73,8 @@ h1, h2, h3 { line-height: 1.2; margin: 0; letter-spacing: -0.01em; }
   transition: border-color 0.15s, transform 0.15s;
 }
 .btn:hover { border-color: var(--accent); color: var(--text); transform: translateY(-1px); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-.btn.primary:hover { filter: brightness(1.1); color: #fff; }
+.btn.primary { background: var(--accent-btn); border-color: var(--accent-btn); color: var(--on-accent); }
+.btn.primary:hover { filter: brightness(1.1); color: var(--on-accent); }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; display: inline-block; box-shadow: 0 0 0 3px #22c55e33; }
 
 /* Prose for blog posts */
@@ -79,7 +82,14 @@ h1, h2, h3 { line-height: 1.2; margin: 0; letter-spacing: -0.01em; }
 .prose h2 { margin: 2.2rem 0 0.8rem; }
 .prose pre { background: var(--chip); border: 1px solid var(--border); padding: 1rem; border-radius: 12px; overflow-x: auto; font-size: 0.88rem; }
 .prose :not(pre) > code { background: var(--chip); padding: 0.1rem 0.35rem; border-radius: 5px; font-size: 0.9em; }
-.prose img { max-width: 100%; border-radius: 12px; }
-.prose a { color: var(--accent); }
+.prose img { max-width: 100%; height: auto; border-radius: 12px; }
+.prose blockquote { margin: 1.2rem 0; padding: 0.2rem 0 0.2rem 1rem; border-left: 3px solid var(--accent); color: var(--muted); }
+.prose table { border-collapse: collapse; width: 100%; font-size: 0.95rem; display: block; overflow-x: auto; }
+.prose th, .prose td { border: 1px solid var(--border); padding: 0.45rem 0.7rem; text-align: left; }
+.prose a { color: var(--accent-ink); }
+
+
+.skip { position: absolute; left: 1rem; top: -3rem; z-index: 10; background: var(--accent-btn); color: var(--on-accent); padding: 0.5rem 0.9rem; border-radius: 10px; font-weight: 600; text-decoration: none; }
+.skip:focus { top: 1rem; color: var(--on-accent); }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

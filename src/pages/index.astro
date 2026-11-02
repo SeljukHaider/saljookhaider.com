@@ -13,7 +13,7 @@ const accents = ['red', 'amber', 'blue', 'purple', 'green'];
 const initials = profile.name.split(' ').map((w) => w[0]).join('');
 ---
 <Base>
-  <main class="bento">
+  <main id="main" class="bento">
     <!-- Intro -->
     <section class="card intro" aria-labelledby="hi">
       <div class="intro-text">
@@ -48,9 +48,9 @@ const initials = profile.name.split(' ').map((w) => w[0]).join('');
     <section class="card contact" aria-labelledby="contact-h">
       <h2 id="contact-h">Let's work together!</h2>
       <p class="status"><span class="dot"></span> {profile.availability}</p>
-      <p class="label" style="margin-top:1.2rem">contact details</p>
+      <p class="label gap">contact details</p>
       <p class="contact-lines"><a href={`mailto:${profile.email}`}>{profile.email}</a><br /><span class="muted">{profile.location}</span></p>
-      <p class="label" style="margin-top:1.2rem">find me on</p>
+      <p class="label gap">find me on</p>
       <ul class="plain">
         {profile.links.map((l) => <li><a href={l.url} target="_blank" rel="noopener">{l.label}</a></li>)}
         <li><a href="/rss.xml">RSS</a></li>
@@ -215,6 +215,7 @@ const initials = profile.name.split(' ').map((w) => w[0]).join('');
   h2 { font-size: 1.35rem; margin-bottom: 1rem; }
   .small { font-size: 0.85rem; margin: 0.1rem 0 0; }
   .plain { list-style: none; padding: 0; margin: 0; }
+  .label.gap { margin-top: 1.2rem; }
 
   .hi { font-size: clamp(1.35rem, 2.4vw, 1.75rem); font-weight: 400; margin-bottom: 1rem; }
   .hi strong { font-weight: 700; color: var(--text); }

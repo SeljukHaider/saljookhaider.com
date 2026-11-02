@@ -167,11 +167,16 @@ const data = { profile, posts };
   .bar em { margin-left: auto; font-style: normal; color: var(--muted); font-size: 0.75rem; }
   .out { flex: 1 1 0; min-height: 260px; max-height: 440px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; scrollbar-width: thin; }
   .out :global(.res) { margin: 0.15rem 0 0.7rem; }
-  .out :global(.k) { color: var(--accent); }
+  .out :global(.k) { color: var(--accent-ink); }
   .out :global(.m) { color: var(--muted); }
-  .out :global(a) { color: var(--accent); }
+  .out :global(a) { color: var(--accent-ink); }
   form { display: flex; gap: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed var(--border); }
-  .prompt, .out :global(.prompt) { color: var(--accent); white-space: nowrap; }
+  .prompt, .out :global(.prompt) { color: var(--accent-ink); white-space: nowrap; }
   input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; color: var(--text); font: inherit; caret-color: var(--accent); }
   input::placeholder { color: var(--muted); opacity: 0.6; }
+  form:focus-within { border-top: 1px solid var(--accent); }
+  @media (max-width: 680px) {
+    .term { min-height: 0; }
+    .out { min-height: 150px; max-height: 360px; }
+  }
 </style>

@@ -13,7 +13,7 @@ const date = post.data.date.toLocaleDateString('en-IE', { day: 'numeric', month:
 const body = post.body ?? '';
 const minutes = Math.max(1, Math.round(body.split(/\s+/).length / 220));
 ---
-<SubPage title={post.data.title} description={post.data.description} intro={`${date} · ${minutes} min read`}>
+<SubPage title={post.data.title} description={post.data.description} published={post.data.date} intro={`${date} · ${minutes} min read`}>
   <article class="card prose-card">
     {post.data.tags.length > 0 && <ul class="chips">{post.data.tags.map((t) => <li>#{t}</li>)}</ul>}
     <div class="prose"><Content /></div>
