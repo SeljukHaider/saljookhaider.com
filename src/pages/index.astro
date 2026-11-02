@@ -1,129 +1,181 @@
 ---
 import Base from '../layouts/Base.astro';
 import Terminal from '../components/Terminal.astro';
+import Icon from '../components/Icon.astro';
 import profile from '../data/profile.json';
 import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
   .slice(0, 3);
-const fmt = (d: Date | string) =>
-  new Date(d).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' });
+const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort((a, b) => a.data.order - b.data.order);
+const featured = projects.filter((p) => p.data.featured).slice(0, 3);
+
+// ATT&CK coverage across all case studies, grouped by tactic in kill-chain order.
+const tacticOrder = ['Initial Access', 'Execution', 'Persistence', 'Defense Evasion', 'Discovery', 'Lateral Movement', 'Command and Control', 'Exfiltration'];
+const techniques = new Map<string, { id: string; name: string; tactic: string; project: string }>();
+for (const p of projects) for (const m of p.data.mitre) if (!techniques.has(m.id)) techniques.set(m.id, { ...m, project: p.id });
+const byTactic = tacticOrder
+  .map((t) => ({ tactic: t, items: [...techniques.values()].filter((m) => m.tactic === t) }))
+  .filter((g) => g.items.length);
+
+const fmt = (d: Date | string) => new Date(d).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' });
 const accents = ['red', 'amber', 'blue', 'purple', 'green'];
-const initials = profile.name.split(' ').map((w) => w[0]).join('');
+const skillIcons = ['siem', 'forensics', 'phishing', 'network', 'shield', 'code'];
+const linkedin = profile.links.find((l) => l.label === 'LinkedIn')!;
+const github = profile.links.find((l) => l.label === 'GitHub')!;
 ---
 <Base>
+  <header class="nav" id="top">
+    <a href="/" class="brand" aria-label={`${profile.name}, home`}>
+      <svg viewBox="0 0 100 116" class="brand-shield" aria-hidden="true"><path d="M50 3 94 19v35c0 29-19 49-44 59C25 103 6 83 6 54V19L50 3Z" /></svg>
+      <span>{profile.name}</span>
+    </a>
+    <nav aria-label="Main">
+      <a href="#work">Investigations</a>
+      <a href="#experience" class="hide-sm">Experience</a>
+      <a href="#skills" class="hide-sm">Skills</a>
+      <a href="/blog/">Blog</a>
+      <a href="#contact" class="hide-sm">Contact</a>
+      <a class="btn primary nav-cv" href={profile.cv} download><Icon name="download" size={16} /> CV</a>
+    </nav>
+  </header>
+
   <main id="main" class="bento">
-    <!-- Intro -->
-    <section class="card intro" aria-labelledby="hi">
-      <div class="intro-text">
-        <p class="label">welcome</p>
-        <h1 id="hi" class="hi">Hi, I'm <strong>{profile.name}</strong>, a {profile.role.toLowerCase()} focused on {profile.headline.toLowerCase().replace(' · ', ' and ')}.</h1>
-        {profile.summary.map((p) => <p class="muted">{p}</p>)}
+    <!-- Hero -->
+    <section class="card hero" aria-labelledby="hero-h">
+      <div class="hero-text">
+        <p class="pill"><span class="dot"></span> {profile.availability} · <Icon name="pin" size={14} /> {profile.location}</p>
+        <h1 id="hero-h"><span class="name">{profile.name}</span><span class="role">{profile.role}</span></h1>
+        <p class="tagline mono">{profile.tagline.split(' · ').map((t, i) => <>{i > 0 && <span class="sep">/</span>}<span>{t}</span></>)}</p>
+        <p class="lede">{profile.summary[0]} {profile.summary[1]}</p>
         <div class="actions">
-          <a class="btn primary" href={profile.cv} download>↓ Download CV</a>
-          {profile.links.map((l) => <a class="btn" href={l.url} target="_blank" rel="noopener">{l.label} ↗</a>)}
-          <a class="btn" href={`mailto:${profile.email}`}>Email</a>
+          <a class="btn primary" href={profile.cv} download><Icon name="download" size={17} /> Download CV</a>
+          <a class="btn" href="#work"><Icon name="target" size={17} /> View investigations</a>
+          <a class="btn icon-btn" href={linkedin.url} target="_blank" rel="noopener" aria-label="LinkedIn"><Icon name="linkedin" size={18} /></a>
+          <a class="btn icon-btn" href={github.url} target="_blank" rel="noopener" aria-label="GitHub"><Icon name="github" size={18} /></a>
+        </div>
+        <ul class="badges" aria-label="Credentials">
+          <li><Icon name="cert" size={16} /> BTL1 Gold · 95/100</li>
+          <li><Icon name="cert" size={16} /> CompTIA Security+ · 870/900</li>
+          <li><Icon name="cap" size={16} /> MSc Cybersecurity · First Class</li>
+        </ul>
+      </div>
+      <div class="radar" aria-hidden="true">
+        <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+        <div class="cross"></div>
+        <div class="sweep"></div>
+        <span class="blip b1"></span><span class="blip b2"></span><span class="blip b3"></span>
+        <div class="core">
+          <svg viewBox="0 0 100 116" class="shield"><path d="M50 3 94 19v35c0 29-19 49-44 59C25 103 6 83 6 54V19L50 3Z" /></svg>
+          <span>SH</span>
         </div>
       </div>
-      <div class="avatar" aria-hidden={!profile.photo}>
-        {profile.photo
-          ? <img src={profile.photo} alt={profile.name} width="220" height="220" />
-          : <div class="monogram"><span>{initials}</span><svg viewBox="0 0 100 116" class="shield"><path d="M50 3 94 19v35c0 29-19 49-44 59C25 103 6 83 6 54V19L50 3Z" /></svg></div>}
-      </div>
     </section>
 
-    <!-- Stack & tools -->
-    <section class="card stack" aria-labelledby="stack-h">
-      <h2 id="stack-h">Stack &amp; tools</h2>
-      {profile.skills.map((g) => (
-        <div class="group">
-          <p class="label">{g.group}</p>
-          <ul class="chips">{g.items.map((s) => <li>{s}</li>)}</ul>
-        </div>
-      ))}
-    </section>
-
-    <!-- Contact -->
-    <section class="card contact" aria-labelledby="contact-h">
-      <h2 id="contact-h">Let's work together!</h2>
-      <p class="status"><span class="dot"></span> {profile.availability}</p>
-      <p class="label gap">contact details</p>
-      <p class="contact-lines"><a href={`mailto:${profile.email}`}>{profile.email}</a><br /><span class="muted">{profile.location}</span></p>
-      <p class="label gap">find me on</p>
-      <ul class="plain">
-        {profile.links.map((l) => <li><a href={l.url} target="_blank" rel="noopener">{l.label}</a></li>)}
-        <li><a href="/rss.xml">RSS</a></li>
-      </ul>
-    </section>
-
-    <!-- Clock -->
-    <section class="card clock" aria-label="Local time">
-      <p class="label"><span class="dot"></span>&nbsp; in {profile.location.split(',')[0]}</p>
-      <p class="time mono" id="clock-here" data-tz={profile.timezone}>--:--</p>
-      <p class="muted small" id="clock-tz"></p>
-      <hr />
-      <p class="label">where you are</p>
-      <p class="time mono small-time" id="clock-you">--:--</p>
-      <p class="muted small" id="clock-diff"></p>
-    </section>
-
-    <!-- Certifications -->
-    <section class="card certs" aria-labelledby="certs-h">
-      <h2 id="certs-h">Certifications</h2>
-      {profile.certifications.map((c) => (
-        <div class="cert">
-          <span class="badge" aria-hidden="true">✔</span>
-          <div>
-            <strong>{c.url ? <a href={c.url} target="_blank" rel="noopener">{c.name}</a> : c.name}</strong>
-            <p class="muted small">{c.issuer} · {c.detail}</p>
-          </div>
-        </div>
-      ))}
-    </section>
-
-    <!-- Now -->
-    <section class="card now" aria-labelledby="now-h">
+    <!-- Now + local time -->
+    <section class="card side" aria-labelledby="now-h">
       <div class="now-head"><h2 id="now-h">Now</h2><span class="muted small">{fmt(profile.now.date)} <span class="pulse"></span></span></div>
-      <p>{profile.now.text}</p>
+      <p class="now-text">{profile.now.text}</p>
+      <div class="clock" id="clock" hidden>
+        <p class="label">Local time in Dublin</p>
+        <p class="time mono" id="clock-here" data-tz={profile.timezone}></p>
+        <p class="muted small" id="clock-diff"></p>
+      </div>
+      <a class="side-mail" href={`mailto:${profile.email}`}><Icon name="mail" size={17} /> {profile.email}</a>
     </section>
 
-    <!-- Projects tile -->
-    <a class="card tile projects-tile" href="/projects/">
+    <!-- Stats -->
+    {profile.stats.map((s, i) => (
+      <div class={`card stat stat${i + 1}`}>
+        <p class="stat-v"><span class="count" data-to={s.value}>{s.value}</span><span class="accent">{s.suffix}</span></p>
+        <p class="muted stat-l">{s.label}</p>
+      </div>
+    ))}
+
+    <!-- Featured investigations -->
+    <h2 class="section-h" id="work"><span class="label">Featured investigations</span></h2>
+    {featured.map((p, i) => (
+      <a class={`card case case${i + 1}`} href={`/projects/${p.id}/`}>
+        <span class="num mono" aria-hidden="true">0{i + 1}</span>
+        <span class="ico"><Icon name={p.data.icon} size={24} /></span>
+        <p class="label">{p.data.kind}</p>
+        <h3>{p.data.title}</h3>
+        <p class="muted">{p.data.summary}</p>
+        <ul class="chips">{p.data.tools.slice(0, 3).map((t) => <li>{t}</li>)}</ul>
+        <span class="go">Read case study <Icon name="arrow" size={15} /></span>
+      </a>
+    ))}
+    <a class="card tile all-work" href="/projects/">
       <span class="pattern pattern-grid" aria-hidden="true"></span>
-      <h2>Projects</h2><span class="arrow" aria-hidden="true">↗</span>
-      <p class="muted small tile-sub">{profile.projects.length} write-ups</p>
+      <span class="arrow" aria-hidden="true"><Icon name="arrow" size={26} /></span>
+      <h2>All projects</h2>
+      <p class="muted small tile-sub">{projects.length} case studies, incl. my MSc dissertation</p>
     </a>
 
-    <!-- Blog tile -->
-    <a class="card tile blog-tile" href="/blog/">
-      <span class="pattern pattern-dots" aria-hidden="true"></span>
-      <h2>Blog</h2><span class="arrow" aria-hidden="true">↗</span>
-      <p class="muted small tile-sub">notes &amp; write-ups</p>
-    </a>
+    <!-- Skills -->
+    <section class="card skills" id="skills" aria-labelledby="skills-h">
+      <h2 id="skills-h">Technical expertise</h2>
+      <div class="skill-grid">
+        {profile.skills.map((g, i) => (
+          <div class="group">
+            <p class="group-h"><Icon name={skillIcons[i] ?? 'shield'} size={17} /> {g.group}</p>
+            <ul class="chips">{g.items.map((s) => <li>{s}</li>)}</ul>
+          </div>
+        ))}
+      </div>
+    </section>
 
-    <!-- Terminal -->
-    <section class="card terminal-card" aria-label="Interactive terminal">
-      <Terminal />
-      <div class="quick" aria-label="Quick commands">
-        {['help', 'about', 'experience', 'certs', 'projects', 'contact', 'themes'].map((c) => (
-          <button type="button" class="mono" data-term-cmd={c}>{c}</button>
+    <!-- ATT&CK coverage -->
+    <section class="card attack" aria-labelledby="attack-h">
+      <h2 id="attack-h">MITRE ATT&amp;CK coverage</h2>
+      <p class="muted small attack-sub">{techniques.size} techniques across {byTactic.length} tactics documented in my case studies.</p>
+      <div class="tactics">
+        {byTactic.map((g) => (
+          <div class="tactic">
+            <p class="label">{g.tactic}</p>
+            <ul class="tech">
+              {g.items.map((m) => <li><a href={`/projects/${m.project}/`} title={m.name}><span class="mono">{m.id}</span> {m.name}</a></li>)}
+            </ul>
+          </div>
         ))}
       </div>
     </section>
 
     <!-- Experience -->
-    <section class="card experience" aria-labelledby="exp-h">
-      <h2 id="exp-h">Experience</h2>
+    <section class="card experience" id="experience" aria-labelledby="exp-h">
+      <h2 id="exp-h">Professional experience</h2>
       <ol class="timeline">
         {profile.experience.map((e) => (
           <li>
             <p class="label">{e.start} – {e.end}</p>
             <h3>{e.role} <span class="muted">· {e.company}</span></h3>
+            <p class="exp-sum">{e.summary}</p>
             <ul>{e.highlights.map((h) => <li>{h}</li>)}</ul>
           </li>
         ))}
       </ol>
+    </section>
+
+    <!-- Certifications -->
+    <section class="card certs" aria-labelledby="certs-h">
+      <h2 id="certs-h">Certifications</h2>
+      <div class="cert-grid">
+        {profile.certifications.map((c) => (
+          <div class="cert">
+            <div class="cert-top">
+              <span class="badge"><Icon name="cert" size={22} /></span>
+              <div>
+                <strong>{c.name}</strong>
+                <p class="muted small">{c.issuer}</p>
+              </div>
+            </div>
+            <p class="score mono">{c.detail}</p>
+            <ul class="chips">{c.topics.slice(0, 5).map((t) => <li>{t}</li>)}</ul>
+            {c.verify && <a class="verify" href={c.verify} target="_blank" rel="noopener">Verify credential <Icon name="arrow" size={13} /></a>}
+          </div>
+        ))}
+      </div>
     </section>
 
     <!-- Education -->
@@ -146,174 +198,292 @@ const initials = profile.name.split(' ').map((w) => w[0]).join('');
           <li><a href={`/blog/${p.id}/`}>{p.data.title}</a><span class="muted small">{fmt(p.data.date)}</span></li>
         ))}
       </ul>
+      <a class="more" href="/blog/">All posts <Icon name="arrow" size={13} /></a>
     </section>
 
-    <!-- Accent swatches -->
-    <section class="card swatches" aria-label="Colour theme">
-      {accents.map((a) => <button type="button" class={`swatch sw-${a}`} data-set-accent={a} aria-label={`${a} accent`}></button>)}
-      <button type="button" class="mode" data-toggle-theme aria-label="Toggle light and dark mode"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.5a6.5 6.5 0 0 1 0 13Z" fill="currentColor"/></svg></button>
+    <!-- Terminal -->
+    <section class="card terminal-card" aria-labelledby="term-h">
+      <h2 id="term-h" class="sr-only">Interactive terminal</h2>
+      <Terminal />
+      <div class="quick" aria-label="Quick commands">
+        {['help', 'about', 'experience', 'certs', 'projects', 'contact', 'themes'].map((c) => (
+          <button type="button" class="mono" data-term-cmd={c}>{c}</button>
+        ))}
+      </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="card foot">
-      <p class="small muted">© {new Date().getFullYear()} {profile.name} · Built with <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> · <a href="/.well-known/security.txt">security.txt</a></p>
+    <!-- Theme -->
+    <section class="card theme" aria-labelledby="theme-h">
+      <h2 id="theme-h"><Icon name="terminal" size={20} /> Make it yours</h2>
+      <p class="muted small">Pick an accent colour or switch to light mode. The terminal accepts <code>themes</code> too, and a few hidden commands.</p>
+      <div class="swatches" role="group" aria-label="Accent colour">
+        {accents.map((a) => <button type="button" class={`swatch sw-${a}`} data-set-accent={a} aria-label={`${a} accent`}></button>)}
+        <button type="button" class="mode" data-toggle-theme aria-label="Light mode"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.5a6.5 6.5 0 0 1 0 13Z" fill="currentColor"/></svg></button>
+      </div>
+    </section>
+
+    <!-- Contact CTA -->
+    <section class="card cta" id="contact" aria-labelledby="cta-h">
+      <div>
+        <p class="label">Contact</p>
+        <h2 id="cta-h">Hiring a SOC analyst in Ireland?</h2>
+        <p class="muted">{profile.summary[2]}</p>
+      </div>
+      <div class="cta-actions">
+        <a class="btn primary big" href={`mailto:${profile.email}`}><Icon name="mail" size={18} /> {profile.email}</a>
+        <div class="cta-row">
+          <a class="btn" href={linkedin.url} target="_blank" rel="noopener"><Icon name="linkedin" size={17} /> LinkedIn</a>
+          <a class="btn" href={github.url} target="_blank" rel="noopener"><Icon name="github" size={17} /> GitHub</a>
+          <a class="btn" href={profile.cv} download><Icon name="download" size={17} /> CV (PDF)</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <p class="small muted">© {new Date().getFullYear()} {profile.name} · Dublin, Ireland · Static site on Cloudflare Workers with a strict CSP · <a href="/rss.xml">RSS</a> · <a href="/.well-known/security.txt">security.txt</a></p>
     </footer>
   </main>
 </Base>
 
 <script>
+  // Dublin clock: shown only once JS has filled it, so crawlers never see a placeholder.
   const here = document.getElementById('clock-here')!;
   const tz = here.dataset.tz!;
-  const you = document.getElementById('clock-you')!;
   const fmt = (z?: string) => new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: z }).format(new Date());
-  const offset = (z: string) => {
-    const s = new Date().toLocaleString('en-US', { timeZone: z, timeZoneName: 'shortOffset' });
-    return s.split(' ').pop();
-  };
   const tick = () => {
     here.textContent = fmt(tz);
-    you.textContent = fmt();
-    document.getElementById('clock-tz')!.textContent = offset(tz)!;
     const mine = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const diffMin = Math.round((new Date(new Date().toLocaleString('en-US', { timeZone: mine })).getTime() - new Date(new Date().toLocaleString('en-US', { timeZone: tz })).getTime()) / 60000);
+    const at = (z: string) => new Date(new Date().toLocaleString('en-US', { timeZone: z })).getTime();
+    const diff = Math.round((at(mine) - at(tz)) / 3600000);
     document.getElementById('clock-diff')!.textContent =
-      diffMin === 0 ? 'same timezone' : `${Math.abs(diffMin / 60)}h ${diffMin > 0 ? 'ahead of' : 'behind'} me`;
+      diff === 0 ? 'Same time zone as you' : `${Math.abs(diff)}h ${diff > 0 ? 'behind' : 'ahead of'} you`;
   };
   tick();
+  document.getElementById('clock')!.hidden = false;
   setInterval(tick, 15000);
+
+  // Count-up for the stats when they scroll into view (skipped for reduced motion).
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+    const els = document.querySelectorAll<HTMLElement>('.count');
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        io.unobserve(e.target);
+        const el = e.target as HTMLElement;
+        const to = Number(el.dataset.to);
+        const t0 = performance.now();
+        const step = (t: number) => {
+          const k = Math.min(1, (t - t0) / 1100);
+          el.textContent = String(Math.round(to * (1 - Math.pow(1 - k, 3))));
+          if (k < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }
+    }, { threshold: 0.6 });
+    els.forEach((el) => io.observe(el));
+  }
+
+  // Sticky nav gets a background once the page scrolls.
+  const nav = document.querySelector('.nav')!;
+  const onScroll = () => nav.classList.toggle('scrolled', scrollY > 8);
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 </script>
 
 <style>
+  /* ---------- Nav ---------- */
+  .nav { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: -1.5rem -1.25rem 1.1rem; padding: 0.9rem 1.25rem; border-bottom: 1px solid transparent; transition: background 0.2s, border-color 0.2s; }
+  .nav.scrolled { background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-color: var(--border); }
+  .brand { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; font-weight: 700; letter-spacing: -0.01em; }
+  .brand-shield { width: 22px; height: 26px; fill: color-mix(in srgb, var(--accent) 18%, transparent); stroke: var(--accent); stroke-width: 7; }
+  .nav nav { display: flex; align-items: center; gap: 1.4rem; font-size: 0.92rem; }
+  .nav nav a:not(.btn) { text-decoration: none; color: var(--muted); }
+  .nav nav a:not(.btn):hover { color: var(--text); }
+  .nav-cv { padding: 0.4rem 0.85rem; }
+
+  /* ---------- Grid ---------- */
   .bento {
     display: grid;
     gap: 1.1rem;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-template-areas:
-      'intro intro intro stack'
-      'contact clock certs stack'
-      'contact now projects blog'
-      'term term term edu'
-      'term term term latest'
+      'hero hero hero side'
+      'stat1 stat2 stat3 stat4'
+      'sec sec sec sec'
+      'case1 case2 case3 all'
+      'skills skills attack attack'
       'exp exp exp exp'
-      'swatch foot foot foot';
+      'certs certs edu latest'
+      'term term term theme'
+      'cta cta cta cta'
+      'foot foot foot foot';
   }
-  .intro { grid-area: intro; display: grid; grid-template-columns: 1fr 240px; gap: 1.5rem; align-items: center; }
-  .stack { grid-area: stack; }
-  .contact { grid-area: contact; }
-  .clock { grid-area: clock; }
-  .certs { grid-area: certs; }
-  .now { grid-area: now; }
-  .projects-tile { grid-area: projects; }
-  .blog-tile { grid-area: blog; }
-  .terminal-card { grid-area: term; }
-  .education { grid-area: edu; }
-  .latest { grid-area: latest; }
+  .hero { grid-area: hero; } .side { grid-area: side; }
+  .stat1 { grid-area: stat1; } .stat2 { grid-area: stat2; } .stat3 { grid-area: stat3; } .stat4 { grid-area: stat4; }
+  .section-h { grid-area: sec; margin: 0.8rem 0 -0.4rem; }
+  .case1 { grid-area: case1; } .case2 { grid-area: case2; } .case3 { grid-area: case3; } .all-work { grid-area: all; }
+  .skills { grid-area: skills; } .attack { grid-area: attack; }
   .experience { grid-area: exp; }
-  .swatches { grid-area: swatch; }
-  .foot { grid-area: foot; display: flex; align-items: center; justify-content: flex-end; }
+  .certs { grid-area: certs; } .education { grid-area: edu; } .latest { grid-area: latest; }
+  .terminal-card { grid-area: term; } .theme { grid-area: theme; }
+  .cta { grid-area: cta; } .foot { grid-area: foot; }
 
   h2 { font-size: 1.35rem; margin-bottom: 1rem; }
   .small { font-size: 0.85rem; margin: 0.1rem 0 0; }
   .plain { list-style: none; padding: 0; margin: 0; }
-  .label.gap { margin-top: 1.2rem; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-  .hi { font-size: clamp(1.35rem, 2.4vw, 1.75rem); font-weight: 400; margin-bottom: 1rem; }
-  .hi strong { font-weight: 700; color: var(--text); }
-  .intro-text > p.muted { margin: 0 0 0.8rem; font-size: 1.02rem; }
-  .actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.4rem; }
-  .avatar img { width: 100%; height: auto; border-radius: 20px; object-fit: cover; }
-  .monogram { position: relative; display: grid; place-items: center; aspect-ratio: 100 / 116; }
-  .shield { position: absolute; inset: 0; width: 100%; height: 100%; fill: color-mix(in srgb, var(--accent) 14%, transparent); stroke: var(--accent); stroke-width: 2; }
-  .monogram span { position: relative; font-size: 4.2rem; font-weight: 800; letter-spacing: -0.04em; color: var(--accent); }
+  /* ---------- Hero ---------- */
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 2rem; align-items: center; padding: clamp(1.6rem, 3.5vw, 2.8rem); }
+  .hero::before { content: ''; position: absolute; inset: -40% -10% auto auto; width: 520px; height: 520px; background: radial-gradient(circle, color-mix(in srgb, var(--accent) 16%, transparent), transparent 65%); pointer-events: none; }
+  .hero-text { position: relative; }
+  .pill { display: inline-flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; margin: 0 0 1.4rem; padding: 0.3rem 0.85rem; border: 1px solid var(--border); border-radius: 999px; background: var(--chip); font-size: 0.82rem; font-weight: 600; }
+  h1 { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1rem; }
+  .name { font-size: clamp(2.5rem, 6vw, 4.4rem); font-weight: 800; letter-spacing: -0.04em; line-height: 0.98; }
+  .role { font-size: clamp(1.3rem, 2.6vw, 1.9rem); font-weight: 600; color: var(--accent-ink); letter-spacing: -0.02em; }
+  .tagline { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 1.2rem; font-size: 0.85rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .sep { color: var(--accent); opacity: 0.8; }
+  .lede { color: var(--muted); font-size: 1.05rem; max-width: 62ch; margin: 0 0 1.6rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .icon-btn { padding: 0.55rem 0.7rem; }
+  .badges { list-style: none; padding: 0; margin: 1.6rem 0 0; display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem; font-size: 0.85rem; color: var(--muted); }
+  .badges li { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .badges :global(svg) { color: var(--accent-ink); }
 
-  .group { margin-bottom: 1.1rem; }
+  /* Radar */
+  .radar { position: relative; width: 100%; max-width: 280px; aspect-ratio: 1; margin-inline: auto; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--accent) 7%, transparent), transparent 70%); }
+  .ring { position: absolute; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent); }
+  .r1 { inset: 0; } .r2 { inset: 17%; } .r3 { inset: 34%; }
+  .cross { position: absolute; inset: 0; background: linear-gradient(color-mix(in srgb, var(--accent) 22%, transparent), color-mix(in srgb, var(--accent) 22%, transparent)) center / 1px 100% no-repeat, linear-gradient(90deg, color-mix(in srgb, var(--accent) 22%, transparent), color-mix(in srgb, var(--accent) 22%, transparent)) center / 100% 1px no-repeat; }
+  .sweep { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, color-mix(in srgb, var(--accent) 45%, transparent), transparent 70deg); animation: spin 4s linear infinite; }
+  .blip { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); opacity: 0; animation: blip 4s infinite; }
+  .b1 { top: 22%; left: 64%; animation-delay: 0.45s; } .b2 { top: 70%; left: 74%; animation-delay: 1.5s; } .b3 { top: 60%; left: 20%; animation-delay: 2.9s; }
+  .core { position: absolute; inset: 33%; display: grid; place-items: center; }
+  .core .shield { position: absolute; inset: 0; width: 100%; height: 100%; fill: color-mix(in srgb, var(--card) 70%, var(--accent)); stroke: var(--accent); stroke-width: 3; }
+  .core span { position: relative; font-weight: 800; font-size: 1.9rem; letter-spacing: -0.04em; color: var(--accent-ink); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes blip { 0%, 100% { opacity: 0; transform: scale(0.6); } 8% { opacity: 1; transform: scale(1.2); } 40% { opacity: 0.25; transform: scale(1); } }
 
-  .status { display: flex; align-items: center; gap: 0.55rem; margin: 0; font-weight: 600; }
-  .contact-lines { margin: 0; font-style: italic; line-height: 1.8; }
-  .contact ul li { font-size: 1.15rem; line-height: 1.9; }
-  .contact ul a { text-decoration: none; }
-
-  .clock .label { display: flex; align-items: center; }
-  .time { font-size: 2.4rem; font-weight: 700; margin: 0; line-height: 1.1; }
-  .small-time { font-size: 1.6rem; }
-  hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
-
-  .cert { display: flex; gap: 0.8rem; align-items: flex-start; margin-bottom: 1rem; }
-  .badge { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); font-weight: 800; }
-
+  /* ---------- Side ---------- */
+  .side { display: flex; flex-direction: column; }
   .now-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; }
-  .now-head h2 { margin-bottom: 0.4rem; }
-  .now p { margin: 0; }
+  .now-head h2 { margin-bottom: 0.5rem; }
+  .now-text { margin: 0 0 1.2rem; }
   .pulse { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); margin-left: 0.3rem; animation: pulse 2s infinite; }
   @keyframes pulse { 50% { opacity: 0.35; } }
+  .clock { border-top: 1px solid var(--border); padding-top: 1rem; margin-bottom: 1rem; }
+  .time { font-size: 2.2rem; font-weight: 700; margin: 0; line-height: 1.1; }
+  .side-mail { margin-top: auto; display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.88rem; font-weight: 600; text-decoration: none; word-break: break-all; }
+
+  /* ---------- Stats ---------- */
+  .stat { padding-top: 1.3rem; padding-bottom: 1.3rem; }
+  .stat-v { margin: 0; font-size: clamp(2rem, 3.4vw, 2.8rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+  .stat-l { margin: 0.45rem 0 0; font-size: 0.9rem; }
+
+  /* ---------- Cases ---------- */
+  .case { display: flex; flex-direction: column; text-decoration: none; color: var(--text); transition: border-color 0.2s, transform 0.2s; }
+  .case:hover { border-color: var(--accent); transform: translateY(-3px); color: var(--text); }
+  .case h3 { font-size: 1.15rem; margin-bottom: 0.6rem; }
+  .case p.muted { margin: 0 0 1rem; flex: 1; font-size: 0.9rem; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+  .ico { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 13px; margin-bottom: 1rem; color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 14%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); }
+  .num { position: absolute; top: 1.1rem; right: 1.4rem; font-size: 2.4rem; font-weight: 700; color: color-mix(in srgb, var(--text) 8%, transparent); }
+  .go { display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 1rem; font-weight: 600; font-size: 0.88rem; color: var(--accent-ink); }
+  .go :global(svg) { transition: transform 0.2s; }
+  .case:hover .go :global(svg) { transform: translate(2px, -2px); }
 
   .tile { text-decoration: none; color: var(--text); display: flex; flex-direction: column; justify-content: flex-end; min-height: 150px; transition: border-color 0.2s, transform 0.2s; }
-  .tile:hover { border-color: var(--accent); transform: translateY(-2px); color: var(--text); }
+  .tile:hover { border-color: var(--accent); transform: translateY(-3px); color: var(--text); }
   .tile h2 { margin: 0; font-size: 1.6rem; position: relative; }
   .tile-sub { position: relative; }
-  .arrow { position: absolute; top: 1.2rem; right: 1.4rem; font-size: 1.6rem; transition: transform 0.2s; }
-  .tile:hover .arrow { transform: translate(3px, -3px); color: var(--accent); }
+  .arrow { position: absolute; top: 1.2rem; right: 1.3rem; transition: transform 0.2s; }
+  .tile:hover .arrow { transform: translate(3px, -3px); color: var(--accent-ink); }
   .pattern { position: absolute; inset: 0; opacity: 0.35; transition: opacity 0.2s; pointer-events: none; }
   .tile:hover .pattern { opacity: 0.6; }
   .pattern-grid {
     background-image: linear-gradient(45deg, color-mix(in srgb, var(--accent) 40%, transparent) 25%, transparent 25%, transparent 75%, color-mix(in srgb, var(--accent) 40%, transparent) 75%);
     background-size: 22px 22px;
-    mask-image: linear-gradient(to left, #000, transparent 75%);
-  }
-  .pattern-dots {
-    background-image: radial-gradient(circle, transparent 5px, var(--accent) 6px, transparent 7px);
-    background-size: 26px 26px;
-    mask-image: linear-gradient(to left, #000, transparent 80%);
+    mask-image: linear-gradient(to top left, #000, transparent 70%);
   }
 
-  .terminal-card { display: flex; flex-direction: column; }
-  .quick { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
-  .quick button { background: var(--chip); color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 0.25rem 0.6rem; font-size: 0.78rem; cursor: pointer; }
-  .quick button:hover { color: var(--accent); border-color: var(--accent); }
+  /* ---------- Skills & ATT&CK ---------- */
+  .skill-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem 1.4rem; }
+  .group-h { display: flex; align-items: center; gap: 0.45rem; margin: 0 0 0.55rem; font-weight: 600; font-size: 0.92rem; }
+  .group-h :global(svg) { color: var(--accent-ink); }
+  .attack-sub { margin: -0.6rem 0 1.1rem; }
+  .tactics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 1.4rem; }
+  .tech { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.35rem; }
+  .tech a { display: block; text-decoration: none; font-size: 0.85rem; padding: 0.4rem 0.6rem; border-radius: 9px; background: var(--chip); border: 1px solid var(--border); border-left: 3px solid var(--accent); transition: border-color 0.15s, transform 0.15s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tech a:hover { border-color: var(--accent); transform: translateX(2px); color: var(--text); }
+  .tech .mono { color: var(--accent-ink); font-size: 0.78rem; margin-right: 0.2rem; }
 
+  /* ---------- Experience ---------- */
   .timeline { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem 2.5rem; }
   .timeline > li { border-left: 2px solid var(--accent); padding-left: 1.1rem; }
-  .timeline h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+  .timeline h3 { font-size: 1.1rem; margin-bottom: 0.3rem; }
+  .exp-sum { margin: 0 0 0.5rem; font-size: 0.9rem; font-weight: 600; color: var(--accent-ink); }
   .timeline ul { margin: 0; padding-left: 1.1rem; color: var(--muted); font-size: 0.93rem; }
   .timeline ul li { margin-bottom: 0.3rem; }
 
+  /* ---------- Certs / edu / posts ---------- */
+  .cert-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .cert { padding: 1rem; border: 1px solid var(--border); border-radius: 16px; background: var(--chip); }
+  .cert-top { display: flex; gap: 0.75rem; align-items: flex-start; margin-bottom: 0.6rem; }
+  .badge { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent-ink); }
+  .score { margin: 0 0 0.7rem; font-size: 0.85rem; color: var(--accent-ink); font-weight: 600; }
+  .cert .chips li { font-size: 0.74rem; background: var(--card); }
+  .verify { display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.7rem; font-size: 0.85rem; font-weight: 600; }
   .edu { margin-bottom: 1rem; }
   .edu .label { margin-bottom: 0.1rem; }
-
   .posts li { display: flex; flex-direction: column; margin-bottom: 0.7rem; }
   .posts a { font-weight: 600; text-decoration: none; }
+  .more { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; font-weight: 600; color: var(--accent-ink); text-decoration: none; }
 
-  .swatches, .foot { padding-top: 1.1rem; padding-bottom: 1.1rem; }
-  .swatches { display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; }
-  .swatch, .mode { flex: none; width: 30px; height: 30px; padding: 0; display: grid; place-items: center; border-radius: 11px; border: 2px solid transparent; cursor: pointer; transition: transform 0.15s; }
+  /* ---------- Terminal / theme ---------- */
+  .terminal-card { display: flex; flex-direction: column; }
+  .quick { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
+  .quick button { background: var(--chip); color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 0.25rem 0.6rem; font-size: 0.78rem; cursor: pointer; }
+  .quick button:hover { color: var(--accent-ink); border-color: var(--accent); }
+  .theme h2 { display: flex; align-items: center; gap: 0.5rem; font-size: 1.2rem; margin-bottom: 0.6rem; }
+  .theme p { margin-bottom: 1.2rem; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .swatch, .mode { flex: none; width: 32px; height: 32px; padding: 0; display: grid; place-items: center; border-radius: 11px; border: 2px solid transparent; cursor: pointer; transition: transform 0.15s; }
   .swatch:hover, .mode:hover { transform: scale(1.12) rotate(8deg); }
   .sw-red { background: #ef4444; } .sw-amber { background: #f5b014; } .sw-blue { background: #3b82f6; } .sw-purple { background: #a855f7; } .sw-green { background: #22c55e; }
-  :global([data-accent='red']) .sw-red, :global([data-accent='amber']) .sw-amber, :global([data-accent='blue']) .sw-blue,
-  :global([data-accent='purple']) .sw-purple, :global([data-accent='green']) .sw-green { border-color: var(--text); }
-  .mode { background: var(--chip); border-color: var(--border); color: var(--text); font-size: 1.1rem; }
+  .swatch[aria-pressed='true'] { border-color: var(--text); }
+  .mode { background: var(--chip); border-color: var(--border); color: var(--text); }
 
+  /* ---------- CTA / footer ---------- */
+  .cta { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 2rem; align-items: center; padding: clamp(1.6rem, 4vw, 2.8rem); background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 14%, var(--card)), var(--card) 60%); }
+  .cta h2 { font-size: clamp(1.6rem, 3.4vw, 2.4rem); letter-spacing: -0.03em; margin-bottom: 0.7rem; }
+  .cta p.muted { margin: 0; max-width: 52ch; }
+  .cta-actions { display: grid; gap: 0.7rem; justify-items: start; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .big { font-size: 1rem; padding: 0.8rem 1.2rem; word-break: break-all; }
+  .foot { text-align: center; padding: 0.5rem 0 0; }
+
+  /* ---------- Responsive ---------- */
   @media (max-width: 1080px) {
     .bento {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       grid-template-areas:
-        'intro intro'
-        'term term'
-        'certs stack'
-        'contact stack'
-        'clock now'
-        'projects blog'
-        'exp exp'
-        'edu latest'
-        'swatch foot';
+        'hero hero' 'stat1 stat2' 'stat3 stat4' 'sec sec' 'case1 case2' 'case3 all'
+        'skills skills' 'attack attack' 'exp exp' 'certs certs' 'edu latest' 'side theme' 'term term' 'cta cta' 'foot foot';
     }
+    .hero { grid-template-columns: minmax(0, 1fr) 220px; }
   }
-  @media (max-width: 680px) {
-    .bento { grid-template-columns: 1fr; grid-template-areas: 'intro' 'term' 'certs' 'projects' 'blog' 'exp' 'stack' 'now' 'contact' 'clock' 'edu' 'latest' 'swatch' 'foot'; }
-    .intro { grid-template-columns: 1fr; }
-    .avatar { order: -1; width: 110px; }
-    .monogram span { font-size: 2.2rem; }
-    .timeline { grid-template-columns: 1fr; }
-    .foot { justify-content: center; text-align: center; }
+  @media (max-width: 760px) {
+    .hide-sm { display: none; }
+    .nav nav { gap: 1rem; }
+    .brand span { display: none; }
+    .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas:
+      'hero hero' 'stat1 stat2' 'stat3 stat4' 'sec sec' 'case1 case1' 'case2 case2' 'case3 case3' 'all all'
+      'skills skills' 'attack attack' 'exp exp' 'certs certs' 'edu edu' 'latest latest' 'side side' 'theme theme' 'term term' 'cta cta' 'foot foot'; }
+    .hero { grid-template-columns: 1fr; }
+    .radar { order: -1; max-width: 150px; margin: 0; }
+    .skill-grid, .tactics, .timeline, .cert-grid, .cta { grid-template-columns: 1fr; }
     .card { padding: 1.3rem; }
+    .stat { padding: 1.1rem; }
+    .tile { min-height: 120px; }
   }
+  @media (prefers-reduced-motion: reduce) { .sweep, .blip, .pulse { animation: none; } .blip { opacity: 0.6; } }
 </style>

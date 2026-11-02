@@ -46,3 +46,45 @@ content:
         type: rich-text
         options:
           format: markdown
+
+  - name: projects
+    label: Case studies
+    type: collection
+    path: src/content/projects
+    format: yaml-frontmatter
+    filename: "{primary}.md"
+    view:
+      fields: [title, kind, featured, order]
+      primary: title
+      sort: [order, title]
+      default:
+        sort: order
+        order: asc
+    fields:
+      - { name: title, label: Title, type: string, required: true }
+      - { name: kind, label: Category line, type: string, description: "e.g. SIEM · Threat detection playbook" }
+      - { name: summary, label: Summary, type: text, description: "One or two sentences for cards and search results." }
+      - { name: order, label: Order, type: number, default: 99 }
+      - { name: featured, label: Featured on home page, type: boolean, default: false }
+      - name: icon
+        label: Icon
+        type: select
+        options: { values: [siem, network, forensics, phishing, code, web] }
+      - { name: context, label: Context label, type: string, description: "e.g. Lab methodology, built from BTL1 labs" }
+      - { name: tools, label: Tools, type: string, list: true }
+      - name: mitre
+        label: MITRE ATT&CK techniques
+        type: object
+        list: true
+        fields:
+          - { name: id, label: Technique ID, type: string }
+          - { name: name, label: Name, type: string }
+          - { name: tactic, label: Tactic, type: string }
+      - { name: repo, label: GitHub repo URL, type: string }
+      - { name: live, label: Live URL, type: string }
+      - { name: draft, label: Draft, type: boolean, default: false }
+      - name: body
+        label: Write-up
+        type: rich-text
+        options:
+          format: markdown

@@ -4,11 +4,13 @@ import { getCollection } from 'astro:content';
 export async function GET(context) {
   const site = context.site;
   const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const projects = await getCollection('projects', ({ data }) => !data.draft);
   const day = (d) => d.toISOString().slice(0, 10);
   const latest = posts.reduce((m, p) => (p.data.date > m ? p.data.date : m), new Date(0));
   const urls = [
     { loc: '/', lastmod: day(latest) },
     { loc: '/projects/' },
+    ...projects.map((p) => ({ loc: `/projects/${p.id}/` })),
     { loc: '/blog/', lastmod: day(latest) },
     ...posts.map((p) => ({ loc: `/blog/${p.id}/`, lastmod: day(p.data.date) })),
   ];

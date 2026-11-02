@@ -79,7 +79,10 @@ h1, h2, h3 { line-height: 1.2; margin: 0; letter-spacing: -0.01em; }
 
 /* Prose for blog posts */
 .prose { max-width: 70ch; font-size: 1.05rem; line-height: 1.75; }
-.prose h2 { margin: 2.2rem 0 0.8rem; }
+.prose h2 { margin: 2.4rem 0 0.8rem; font-size: 1.55rem; scroll-margin-top: 1rem; }
+.prose h2:first-child { margin-top: 0; }
+.prose h3 { margin: 1.8rem 0 0.6rem; font-size: 1.15rem; }
+.prose pre { line-height: 1.55; }
 .prose pre { background: var(--chip); border: 1px solid var(--border); padding: 1rem; border-radius: 12px; overflow-x: auto; font-size: 0.88rem; }
 .prose :not(pre) > code { background: var(--chip); padding: 0.1rem 0.35rem; border-radius: 5px; font-size: 0.9em; }
 .prose img { max-width: 100%; height: auto; border-radius: 12px; }

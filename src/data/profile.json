@@ -11,8 +11,14 @@
   "cv": "/Saljook_Haider_CV.pdf",
   "photo": "",
   "links": [
-    { "label": "LinkedIn", "url": "https://www.linkedin.com/in/saljookhaider/" },
-    { "label": "GitHub", "url": "https://github.com/SeljukHaider" }
+    {
+      "label": "LinkedIn",
+      "url": "https://www.linkedin.com/in/saljookhaider/"
+    },
+    {
+      "label": "GitHub",
+      "url": "https://github.com/SeljukHaider"
+    }
   ],
   "summary": [
     "I'm a SOC-focused cyber security analyst. For two years I triaged Splunk alerts, investigated endpoint, identity and email threats, and escalated confirmed incidents.",
@@ -28,24 +34,92 @@
       "name": "Blue Team Level 1 (BTL1)",
       "issuer": "Security Blue Team",
       "detail": "Gold badge · 95/100",
-      "topics": ["Digital forensics", "Incident response", "SIEM", "Malware analysis", "Threat hunting", "Phishing analysis", "Threat intelligence"],
-      "url": ""
+      "topics": [
+        "Digital forensics",
+        "Incident response",
+        "SIEM",
+        "Malware analysis",
+        "Threat hunting",
+        "Phishing analysis",
+        "Threat intelligence"
+      ],
+      "url": "",
+      "verify": ""
     },
     {
       "name": "CompTIA Security+ (SY0-701)",
       "issuer": "CompTIA",
       "detail": "Score 870/900",
-      "topics": ["Network security", "Endpoint protection", "Risk management", "Cryptography", "Cloud security", "IAM"],
-      "url": ""
+      "topics": [
+        "Network security",
+        "Endpoint protection",
+        "Risk management",
+        "Cryptography",
+        "Cloud security",
+        "IAM"
+      ],
+      "url": "",
+      "verify": ""
     }
   ],
   "skills": [
-    { "group": "SIEM & logs", "items": ["Splunk", "Windows event logs", "Sysmon", "Auth logs", "DNS / HTTP logs"] },
-    { "group": "Forensics & IR", "items": ["KAPE", "FTK Imager", "Autopsy", "Volatility", "DeepBlueCLI"] },
-    { "group": "Threat intel & email", "items": ["MITRE ATT&CK", "VirusTotal", "CyberChef", "WHOIS", "MXToolbox"] },
-    { "group": "Network", "items": ["Wireshark", "TCP/IP", "DNS"] },
-    { "group": "Identity & endpoint", "items": ["Active Directory", "Entra ID", "Microsoft 365", "Windows"] },
-    { "group": "Automation & AppSec", "items": ["Python", "PowerShell", "OWASP Top 10", "Semgrep", "Bandit"] }
+    {
+      "group": "SIEM & logs",
+      "items": [
+        "Splunk",
+        "Windows event logs",
+        "Sysmon",
+        "Auth logs",
+        "DNS / HTTP logs"
+      ]
+    },
+    {
+      "group": "Forensics & IR",
+      "items": [
+        "KAPE",
+        "FTK Imager",
+        "Autopsy",
+        "Volatility",
+        "DeepBlueCLI"
+      ]
+    },
+    {
+      "group": "Threat intel & email",
+      "items": [
+        "MITRE ATT&CK",
+        "VirusTotal",
+        "CyberChef",
+        "WHOIS",
+        "MXToolbox"
+      ]
+    },
+    {
+      "group": "Network",
+      "items": [
+        "Wireshark",
+        "TCP/IP",
+        "DNS"
+      ]
+    },
+    {
+      "group": "Identity & endpoint",
+      "items": [
+        "Active Directory",
+        "Entra ID",
+        "Microsoft 365",
+        "Windows"
+      ]
+    },
+    {
+      "group": "Automation & AppSec",
+      "items": [
+        "Python",
+        "PowerShell",
+        "OWASP Top 10",
+        "Semgrep",
+        "Bandit"
+      ]
+    }
   ],
   "experience": [
     {
@@ -89,46 +163,27 @@
       "end": "2023"
     }
   ],
-  "projects": [
+  "tagline": "Security Operations · Incident Response · Threat Detection",
+  "stats": [
     {
-      "name": "LLM triage for static-analysis findings",
-      "kind": "MSc dissertation",
-      "description": "A Python pipeline that uses a large language model to review Semgrep and Bandit findings, flag likely false positives and generate remediation guidance.",
-      "tech": ["Python", "LLM", "Semgrep", "Bandit", "AppSec"],
-      "url": "",
-      "repo": ""
+      "value": "2",
+      "suffix": " yrs",
+      "label": "SOC experience"
     },
     {
-      "name": "Endpoint & network investigations",
-      "kind": "Lab work",
-      "description": "Traced simulated incidents in Splunk using Windows authentication, process and Sysmon telemetry: process chains, persistence, and corroboration with Wireshark captures.",
-      "tech": ["Splunk", "Sysmon", "Wireshark", "MITRE ATT&CK"],
-      "url": "",
-      "repo": ""
+      "value": "200",
+      "suffix": "+",
+      "label": "alerts triaged a week"
     },
     {
-      "name": "Disk & memory forensics",
-      "kind": "Lab work",
-      "description": "Acquired and analysed disk and memory images, surfaced suspicious event-log activity and rebuilt incident timelines from correlated artefacts.",
-      "tech": ["FTK Imager", "KAPE", "Autopsy", "Volatility", "DeepBlueCLI"],
-      "url": "",
-      "repo": ""
+      "value": "40",
+      "suffix": "+",
+      "label": "incidents escalated"
     },
     {
-      "name": "Phishing analysis playbook",
-      "kind": "Lab work",
-      "description": "Examined headers, sender infrastructure, attachments and URLs; enriched indicators and classified messages as benign, suspicious or malicious, with structured reports and ATT&CK mapping.",
-      "tech": ["VirusTotal", "CyberChef", "WHOIS", "MXToolbox"],
-      "url": "",
-      "repo": ""
-    },
-    {
-      "name": "saljookhaider.com",
-      "kind": "Side project",
-      "description": "This site: a bento-grid portfolio with a working terminal, Markdown blog and RSS, deployed on Cloudflare Workers with strict security headers.",
-      "tech": ["Astro", "TypeScript", "Cloudflare Workers"],
-      "url": "https://saljookhaider.com",
-      "repo": ""
+      "value": "95",
+      "suffix": "/100",
+      "label": "BTL1 Gold score"
     }
   ]
 }

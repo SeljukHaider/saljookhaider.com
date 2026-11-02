@@ -8,7 +8,7 @@ const { title, description, heading = title, intro, published, noindex } = Astro
 <Base title={title} description={description} type={published ? 'article' : 'website'} published={published} noindex={noindex}>
   <header class="top">
     <a href="/" class="back">← <span class="mono">{profile.handle}</span></a>
-    <nav class="small"><a href="/projects/">projects</a><a href="/blog/">blog</a><a href={profile.cv} download>cv</a></nav>
+    <nav class="small"><a href="/projects/">investigations</a><a href="/blog/">blog</a><a href="/#experience">experience</a><a href={profile.cv} download>cv</a></nav>
   </header>
   <main id="main">
     <section class="card head">

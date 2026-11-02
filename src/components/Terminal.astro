@@ -12,7 +12,10 @@ import profile from '../data/profile.json';
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
   .map((p) => ({ title: p.data.title, date: p.data.date.toISOString().slice(0, 10), url: `/blog/${p.id}/` }));
-const data = { profile, posts };
+const projects = (await getCollection('projects', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order)
+  .map((p) => ({ name: p.data.title, kind: p.data.kind, description: p.data.summary, url: `/projects/${p.id}/` }));
+const data = { profile, posts, projects };
 ---
 <div class="term mono" aria-label="Interactive terminal">
   <div class="bar"><span></span><span></span><span></span><em>{profile.handle}@saljookhaider.com: ~</em></div>
@@ -25,7 +28,7 @@ const data = { profile, posts };
 <script type="application/json" id="term-data" set:html={JSON.stringify(data)} />
 
 <script>
-  const { profile: P, posts } = JSON.parse(document.getElementById('term-data')!.textContent!);
+  const { profile: P, posts, projects } = JSON.parse(document.getElementById('term-data')!.textContent!);
   const out = document.getElementById('term-out')!;
   const form = document.getElementById('term-form') as HTMLFormElement;
   const input = document.getElementById('term-in') as HTMLInputElement;
@@ -67,7 +70,7 @@ const data = { profile, posts };
     projects: {
       desc: 'things I have built and investigated',
       run: () =>
-        P.projects
+        projects
           .map((p: any) => `${k(p.name)} <span class="m">[${esc(p.kind)}]</span>\n  ${esc(p.description)}${p.url ? '\n  ' + link(p.url) : ''}`)
           .join('\n\n') + `\n\nFull list: ${link('/projects/', '/projects')}`,
     },
