@@ -3,6 +3,8 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "saljookhaider",
   "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "preview_urls": true,
   "routes": [
     { "pattern": "saljookhaider.com", "custom_domain": true },
     { "pattern": "www.saljookhaider.com", "custom_domain": true }
