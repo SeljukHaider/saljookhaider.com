@@ -1,0 +1,37 @@
+---
+import SubPage from '../../layouts/SubPage.astro';
+import profile from '../../data/profile.json';
+---
+<SubPage
+  title="Projects"
+  description={`Projects, investigations and lab write-ups by ${profile.name}.`}
+  intro="Things I've built, investigated and written up, from my MSc dissertation to hands-on SOC lab work."
+>
+  <div class="grid">
+    {profile.projects.map((p) => (
+      <article class="card project">
+        <p class="label">{p.kind}</p>
+        <h2>{p.url ? <a href={p.url} target="_blank" rel="noopener">{p.name}</a> : p.name}</h2>
+        <p class="muted">{p.description}</p>
+        <ul class="chips">{p.tech.map((t) => <li>{t}</li>)}</ul>
+        {(p.url || p.repo) && (
+          <p class="links">
+            {p.url && <a class="btn" href={p.url} target="_blank" rel="noopener">Live ↗</a>}
+            {p.repo && <a class="btn" href={p.repo} target="_blank" rel="noopener">Code ↗</a>}
+          </p>
+        )}
+      </article>
+    ))}
+  </div>
+</SubPage>
+
+<style>
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.1rem; }
+  .project { display: flex; flex-direction: column; gap: 0.2rem; transition: border-color 0.2s; }
+  .project:hover { border-color: var(--accent); }
+  .project h2 { font-size: 1.25rem; margin-bottom: 0.4rem; }
+  .project h2 a { text-decoration: none; }
+  .project > p.muted { margin: 0 0 1rem; flex: 1; }
+  .links { display: flex; gap: 0.5rem; margin: 1rem 0 0; }
+  @media (max-width: 420px) { .grid { grid-template-columns: 1fr; } }
+</style>

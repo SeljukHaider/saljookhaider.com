@@ -1,0 +1,28 @@
+---
+import SubPage from '../../layouts/SubPage.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const date = post.data.date.toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
+const body = post.body ?? '';
+const minutes = Math.max(1, Math.round(body.split(/\s+/).length / 220));
+---
+<SubPage title={post.data.title} description={post.data.description} intro={`${date} · ${minutes} min read`}>
+  <article class="card prose-card">
+    {post.data.tags.length > 0 && <ul class="chips">{post.data.tags.map((t) => <li>#{t}</li>)}</ul>}
+    <div class="prose"><Content /></div>
+  </article>
+  <p class="back"><a href="/blog/">← All posts</a></p>
+</SubPage>
+
+<style>
+  .prose-card { padding: clamp(1.3rem, 4vw, 2.5rem); }
+  .chips { margin-bottom: 1rem; }
+  .back { margin-top: 1.5rem; }
+</style>

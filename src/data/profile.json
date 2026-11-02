@@ -1,0 +1,134 @@
+{
+  "name": "Saljook Haider",
+  "firstName": "Saljook",
+  "handle": "saljook",
+  "role": "Cyber Security Analyst",
+  "headline": "Security Operations · Incident Response",
+  "location": "Dublin, Ireland",
+  "timezone": "Europe/Dublin",
+  "availability": "Available immediately",
+  "email": "hello@saljookhaider.com",
+  "cv": "/Saljook_Haider_CV.pdf",
+  "photo": "",
+  "links": [
+    { "label": "LinkedIn", "url": "https://www.linkedin.com/in/saljookhaider/" },
+    { "label": "GitHub", "url": "https://github.com/SeljukHaider" }
+  ],
+  "summary": [
+    "I'm a SOC-focused cyber security analyst. For two years I triaged Splunk alerts, investigated endpoint, identity and email threats, and escalated confirmed incidents.",
+    "I hold BTL1 (Gold) and CompTIA Security+, and a First Class MSc in Cybersecurity. Before security I was a frontend developer, so I like automating the boring parts with Python and PowerShell.",
+    "Looking for my next SOC or incident response role. If you're hiring, or just want to talk detections, say hello."
+  ],
+  "now": {
+    "date": "2026-11-02",
+    "text": "Open to SOC analyst and incident response roles in Dublin or remote. Building this site in public."
+  },
+  "certifications": [
+    {
+      "name": "Blue Team Level 1 (BTL1)",
+      "issuer": "Security Blue Team",
+      "detail": "Gold badge · 95/100",
+      "topics": ["Digital forensics", "Incident response", "SIEM", "Malware analysis", "Threat hunting", "Phishing analysis", "Threat intelligence"],
+      "url": ""
+    },
+    {
+      "name": "CompTIA Security+ (SY0-701)",
+      "issuer": "CompTIA",
+      "detail": "Score 870/900",
+      "topics": ["Network security", "Endpoint protection", "Risk management", "Cryptography", "Cloud security", "IAM"],
+      "url": ""
+    }
+  ],
+  "skills": [
+    { "group": "SIEM & logs", "items": ["Splunk", "Windows event logs", "Sysmon", "Auth logs", "DNS / HTTP logs"] },
+    { "group": "Forensics & IR", "items": ["KAPE", "FTK Imager", "Autopsy", "Volatility", "DeepBlueCLI"] },
+    { "group": "Threat intel & email", "items": ["MITRE ATT&CK", "VirusTotal", "CyberChef", "WHOIS", "MXToolbox"] },
+    { "group": "Network", "items": ["Wireshark", "TCP/IP", "DNS"] },
+    { "group": "Identity & endpoint", "items": ["Active Directory", "Entra ID", "Microsoft 365", "Windows"] },
+    { "group": "Automation & AppSec", "items": ["Python", "PowerShell", "OWASP Top 10", "Semgrep", "Bandit"] }
+  ],
+  "experience": [
+    {
+      "role": "Cyber Security Analyst",
+      "company": "3AM Technologies",
+      "start": "Jan 2024",
+      "end": "Jan 2026",
+      "summary": "Security operations and incident response.",
+      "highlights": [
+        "Triaged 200+ Splunk alerts a week, correlating system, network and endpoint logs",
+        "Escalated 40+ confirmed incidents and supported containment: account disablement, host isolation, IP/domain blocks",
+        "Analysed 50+ reported phishing emails a month, extracting and enriching IOCs",
+        "Tuned detections to cut false positives by 30%; automated triage with Python and PowerShell, saving ~8 hours a week"
+      ]
+    },
+    {
+      "role": "Frontend Developer",
+      "company": "kreativrudel GmbH & Co. KG",
+      "start": "Jul 2021",
+      "end": "Sep 2023",
+      "summary": "Secure web solutions, remote from Germany.",
+      "highlights": [
+        "Found and fixed input validation failures and access misconfigurations in live client sites",
+        "Explained security risk to non-technical clients in Germany, Switzerland and Austria"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "MSc Cybersecurity",
+      "grade": "First Class Honours",
+      "school": "Dublin Business School",
+      "start": "2025",
+      "end": "2026"
+    },
+    {
+      "degree": "BSc Software Engineering",
+      "grade": "First Class Honours",
+      "school": "University of Lahore",
+      "start": "2019",
+      "end": "2023"
+    }
+  ],
+  "projects": [
+    {
+      "name": "LLM triage for static-analysis findings",
+      "kind": "MSc dissertation",
+      "description": "A Python pipeline that uses a large language model to review Semgrep and Bandit findings, flag likely false positives and generate remediation guidance.",
+      "tech": ["Python", "LLM", "Semgrep", "Bandit", "AppSec"],
+      "url": "",
+      "repo": ""
+    },
+    {
+      "name": "Endpoint & network investigations",
+      "kind": "Lab work",
+      "description": "Traced simulated incidents in Splunk using Windows authentication, process and Sysmon telemetry: process chains, persistence, and corroboration with Wireshark captures.",
+      "tech": ["Splunk", "Sysmon", "Wireshark", "MITRE ATT&CK"],
+      "url": "",
+      "repo": ""
+    },
+    {
+      "name": "Disk & memory forensics",
+      "kind": "Lab work",
+      "description": "Acquired and analysed disk and memory images, surfaced suspicious event-log activity and rebuilt incident timelines from correlated artefacts.",
+      "tech": ["FTK Imager", "KAPE", "Autopsy", "Volatility", "DeepBlueCLI"],
+      "url": "",
+      "repo": ""
+    },
+    {
+      "name": "Phishing analysis playbook",
+      "kind": "Lab work",
+      "description": "Examined headers, sender infrastructure, attachments and URLs; enriched indicators and classified messages as benign, suspicious or malicious, with structured reports and ATT&CK mapping.",
+      "tech": ["VirusTotal", "CyberChef", "WHOIS", "MXToolbox"],
+      "url": "",
+      "repo": ""
+    },
+    {
+      "name": "saljookhaider.com",
+      "kind": "Side project",
+      "description": "This site: a bento-grid portfolio with a working terminal, Markdown blog and RSS, deployed on Cloudflare Pages.",
+      "tech": ["Astro", "TypeScript", "Cloudflare Pages"],
+      "url": "https://saljookhaider.com",
+      "repo": ""
+    }
+  ]
+}

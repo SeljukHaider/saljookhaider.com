@@ -1,0 +1,49 @@
+---
+import '../styles/global.css';
+import profile from '../data/profile.json';
+
+interface Props { title?: string; description?: string }
+const { title, description = `${profile.name}: ${profile.role} in ${profile.location}. ${profile.headline}.` } = Astro.props;
+const pageTitle = title ? `${title} · ${profile.name}` : `${profile.name} · ${profile.role}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="en" data-theme="dark" data-accent="red">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={`${profile.name} · Blog`} href="/rss.xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="theme-color" content="#0d0d0e" />
+    <script is:inline>
+      try {
+        const d = document.documentElement;
+        const t = localStorage.getItem('theme'); if (t) d.dataset.theme = t;
+        const a = localStorage.getItem('accent'); if (a) d.dataset.accent = a;
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div class="page"><slot /></div>
+    <script>
+      // Shared helpers for theme + accent, used by the swatches and the terminal.
+      const d = document.documentElement;
+      const save = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch {} };
+      (window as any).site = {
+        setAccent: (a: string) => { d.dataset.accent = a; save('accent', a); },
+        setTheme: (t: string) => { d.dataset.theme = t; save('theme', t); },
+      };
+      document.querySelectorAll<HTMLButtonElement>('[data-set-accent]').forEach((b) =>
+        b.addEventListener('click', () => (window as any).site.setAccent(b.dataset.setAccent!)));
+      document.querySelectorAll<HTMLButtonElement>('[data-toggle-theme]').forEach((b) =>
+        b.addEventListener('click', () => (window as any).site.setTheme(d.dataset.theme === 'light' ? 'dark' : 'light')));
+    </script>
+  </body>
+</html>

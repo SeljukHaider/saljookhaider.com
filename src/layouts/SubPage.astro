@@ -1,0 +1,34 @@
+---
+import Base from './Base.astro';
+import profile from '../data/profile.json';
+
+interface Props { title: string; description?: string; heading?: string; intro?: string }
+const { title, description, heading = title, intro } = Astro.props;
+---
+<Base title={title} description={description}>
+  <header class="top">
+    <a href="/" class="back">← <span class="mono">{profile.handle}</span></a>
+    <nav class="small"><a href="/projects/">projects</a><a href="/blog/">blog</a><a href={profile.cv} download>cv</a></nav>
+  </header>
+  <main>
+    <section class="card head">
+      <h1>{heading}</h1>
+      {intro && <p class="muted">{intro}</p>}
+    </section>
+    <slot />
+  </main>
+  <footer class="muted small foot">© {new Date().getFullYear()} {profile.name} · <a href={`mailto:${profile.email}`}>{profile.email}</a></footer>
+</Base>
+
+<style>
+  .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.1rem; }
+  .back { text-decoration: none; font-weight: 600; }
+  nav { display: flex; gap: 1.1rem; }
+  nav a { text-decoration: none; color: var(--muted); }
+  nav a:hover { color: var(--accent); }
+  .head { margin-bottom: 1.1rem; }
+  .head h1 { font-size: clamp(2rem, 5vw, 3rem); }
+  .head p { margin: 0.6rem 0 0; max-width: 60ch; }
+  .foot { text-align: center; margin-top: 2.5rem; font-size: 0.85rem; }
+  .small { font-size: 0.92rem; }
+</style>

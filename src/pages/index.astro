@@ -1,0 +1,318 @@
+---
+import Base from '../layouts/Base.astro';
+import Terminal from '../components/Terminal.astro';
+import profile from '../data/profile.json';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
+const fmt = (d: Date | string) =>
+  new Date(d).toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' });
+const accents = ['red', 'amber', 'blue', 'purple', 'green'];
+const initials = profile.name.split(' ').map((w) => w[0]).join('');
+---
+<Base>
+  <main class="bento">
+    <!-- Intro -->
+    <section class="card intro" aria-labelledby="hi">
+      <div class="intro-text">
+        <p class="label">welcome</p>
+        <h1 id="hi" class="hi">Hi, I'm <strong>{profile.name}</strong>, a {profile.role.toLowerCase()} focused on {profile.headline.toLowerCase().replace(' · ', ' and ')}.</h1>
+        {profile.summary.map((p) => <p class="muted">{p}</p>)}
+        <div class="actions">
+          <a class="btn primary" href={profile.cv} download>↓ Download CV</a>
+          {profile.links.map((l) => <a class="btn" href={l.url} target="_blank" rel="noopener">{l.label} ↗</a>)}
+          <a class="btn" href={`mailto:${profile.email}`}>Email</a>
+        </div>
+      </div>
+      <div class="avatar" aria-hidden={!profile.photo}>
+        {profile.photo
+          ? <img src={profile.photo} alt={profile.name} width="220" height="220" />
+          : <div class="monogram"><span>{initials}</span><svg viewBox="0 0 100 116" class="shield"><path d="M50 3 94 19v35c0 29-19 49-44 59C25 103 6 83 6 54V19L50 3Z" /></svg></div>}
+      </div>
+    </section>
+
+    <!-- Stack & tools -->
+    <section class="card stack" aria-labelledby="stack-h">
+      <h2 id="stack-h">Stack &amp; tools</h2>
+      {profile.skills.map((g) => (
+        <div class="group">
+          <p class="label">{g.group}</p>
+          <ul class="chips">{g.items.map((s) => <li>{s}</li>)}</ul>
+        </div>
+      ))}
+    </section>
+
+    <!-- Contact -->
+    <section class="card contact" aria-labelledby="contact-h">
+      <h2 id="contact-h">Let's work together!</h2>
+      <p class="status"><span class="dot"></span> {profile.availability}</p>
+      <p class="label" style="margin-top:1.2rem">contact details</p>
+      <p class="contact-lines"><a href={`mailto:${profile.email}`}>{profile.email}</a><br /><span class="muted">{profile.location}</span></p>
+      <p class="label" style="margin-top:1.2rem">find me on</p>
+      <ul class="plain">
+        {profile.links.map((l) => <li><a href={l.url} target="_blank" rel="noopener">{l.label}</a></li>)}
+        <li><a href="/rss.xml">RSS</a></li>
+      </ul>
+    </section>
+
+    <!-- Clock -->
+    <section class="card clock" aria-label="Local time">
+      <p class="label"><span class="dot"></span>&nbsp; in {profile.location.split(',')[0]}</p>
+      <p class="time mono" id="clock-here" data-tz={profile.timezone}>--:--</p>
+      <p class="muted small" id="clock-tz"></p>
+      <hr />
+      <p class="label">where you are</p>
+      <p class="time mono small-time" id="clock-you">--:--</p>
+      <p class="muted small" id="clock-diff"></p>
+    </section>
+
+    <!-- Certifications -->
+    <section class="card certs" aria-labelledby="certs-h">
+      <h2 id="certs-h">Certifications</h2>
+      {profile.certifications.map((c) => (
+        <div class="cert">
+          <span class="badge" aria-hidden="true">✔</span>
+          <div>
+            <strong>{c.url ? <a href={c.url} target="_blank" rel="noopener">{c.name}</a> : c.name}</strong>
+            <p class="muted small">{c.issuer} · {c.detail}</p>
+          </div>
+        </div>
+      ))}
+    </section>
+
+    <!-- Now -->
+    <section class="card now" aria-labelledby="now-h">
+      <div class="now-head"><h2 id="now-h">Now</h2><span class="muted small">{fmt(profile.now.date)} <span class="pulse"></span></span></div>
+      <p>{profile.now.text}</p>
+    </section>
+
+    <!-- Projects tile -->
+    <a class="card tile projects-tile" href="/projects/">
+      <span class="pattern pattern-grid" aria-hidden="true"></span>
+      <h2>Projects</h2><span class="arrow" aria-hidden="true">↗</span>
+      <p class="muted small tile-sub">{profile.projects.length} write-ups</p>
+    </a>
+
+    <!-- Blog tile -->
+    <a class="card tile blog-tile" href="/blog/">
+      <span class="pattern pattern-dots" aria-hidden="true"></span>
+      <h2>Blog</h2><span class="arrow" aria-hidden="true">↗</span>
+      <p class="muted small tile-sub">notes &amp; write-ups</p>
+    </a>
+
+    <!-- Terminal -->
+    <section class="card terminal-card" aria-label="Interactive terminal">
+      <Terminal />
+      <div class="quick" aria-label="Quick commands">
+        {['help', 'about', 'experience', 'certs', 'projects', 'contact', 'themes'].map((c) => (
+          <button type="button" class="mono" data-term-cmd={c}>{c}</button>
+        ))}
+      </div>
+    </section>
+
+    <!-- Experience -->
+    <section class="card experience" aria-labelledby="exp-h">
+      <h2 id="exp-h">Experience</h2>
+      <ol class="timeline">
+        {profile.experience.map((e) => (
+          <li>
+            <p class="label">{e.start} – {e.end}</p>
+            <h3>{e.role} <span class="muted">· {e.company}</span></h3>
+            <ul>{e.highlights.map((h) => <li>{h}</li>)}</ul>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <!-- Education -->
+    <section class="card education" aria-labelledby="edu-h">
+      <h2 id="edu-h">Education</h2>
+      {profile.education.map((e) => (
+        <div class="edu">
+          <p class="label">{e.start} – {e.end}</p>
+          <strong>{e.degree}</strong>
+          <p class="muted small">{e.grade} · {e.school}</p>
+        </div>
+      ))}
+    </section>
+
+    <!-- Latest posts -->
+    <section class="card latest" aria-labelledby="latest-h">
+      <h2 id="latest-h">Latest posts</h2>
+      <ul class="plain posts">
+        {posts.map((p) => (
+          <li><a href={`/blog/${p.id}/`}>{p.data.title}</a><span class="muted small">{fmt(p.data.date)}</span></li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- Accent swatches -->
+    <section class="card swatches" aria-label="Colour theme">
+      {accents.map((a) => <button type="button" class={`swatch sw-${a}`} data-set-accent={a} aria-label={`${a} accent`}></button>)}
+      <button type="button" class="mode" data-toggle-theme aria-label="Toggle light and dark mode"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.5a6.5 6.5 0 0 1 0 13Z" fill="currentColor"/></svg></button>
+    </section>
+
+    <!-- Footer -->
+    <footer class="card foot">
+      <p class="small muted">© {new Date().getFullYear()} {profile.name} · Built with <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> · <a href="/.well-known/security.txt">security.txt</a></p>
+    </footer>
+  </main>
+</Base>
+
+<script>
+  const here = document.getElementById('clock-here')!;
+  const tz = here.dataset.tz!;
+  const you = document.getElementById('clock-you')!;
+  const fmt = (z?: string) => new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: z }).format(new Date());
+  const offset = (z: string) => {
+    const s = new Date().toLocaleString('en-US', { timeZone: z, timeZoneName: 'shortOffset' });
+    return s.split(' ').pop();
+  };
+  const tick = () => {
+    here.textContent = fmt(tz);
+    you.textContent = fmt();
+    document.getElementById('clock-tz')!.textContent = offset(tz)!;
+    const mine = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const diffMin = Math.round((new Date(new Date().toLocaleString('en-US', { timeZone: mine })).getTime() - new Date(new Date().toLocaleString('en-US', { timeZone: tz })).getTime()) / 60000);
+    document.getElementById('clock-diff')!.textContent =
+      diffMin === 0 ? 'same timezone' : `${Math.abs(diffMin / 60)}h ${diffMin > 0 ? 'ahead of' : 'behind'} me`;
+  };
+  tick();
+  setInterval(tick, 15000);
+</script>
+
+<style>
+  .bento {
+    display: grid;
+    gap: 1.1rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-areas:
+      'intro intro intro stack'
+      'contact clock certs stack'
+      'contact now projects blog'
+      'term term term edu'
+      'term term term latest'
+      'exp exp exp exp'
+      'swatch foot foot foot';
+  }
+  .intro { grid-area: intro; display: grid; grid-template-columns: 1fr 240px; gap: 1.5rem; align-items: center; }
+  .stack { grid-area: stack; }
+  .contact { grid-area: contact; }
+  .clock { grid-area: clock; }
+  .certs { grid-area: certs; }
+  .now { grid-area: now; }
+  .projects-tile { grid-area: projects; }
+  .blog-tile { grid-area: blog; }
+  .terminal-card { grid-area: term; }
+  .education { grid-area: edu; }
+  .latest { grid-area: latest; }
+  .experience { grid-area: exp; }
+  .swatches { grid-area: swatch; }
+  .foot { grid-area: foot; display: flex; align-items: center; justify-content: flex-end; }
+
+  h2 { font-size: 1.35rem; margin-bottom: 1rem; }
+  .small { font-size: 0.85rem; margin: 0.1rem 0 0; }
+  .plain { list-style: none; padding: 0; margin: 0; }
+
+  .hi { font-size: clamp(1.35rem, 2.4vw, 1.75rem); font-weight: 400; margin-bottom: 1rem; }
+  .hi strong { font-weight: 700; color: var(--text); }
+  .intro-text > p.muted { margin: 0 0 0.8rem; font-size: 1.02rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.4rem; }
+  .avatar img { width: 100%; height: auto; border-radius: 20px; object-fit: cover; }
+  .monogram { position: relative; display: grid; place-items: center; aspect-ratio: 100 / 116; }
+  .shield { position: absolute; inset: 0; width: 100%; height: 100%; fill: color-mix(in srgb, var(--accent) 14%, transparent); stroke: var(--accent); stroke-width: 2; }
+  .monogram span { position: relative; font-size: 4.2rem; font-weight: 800; letter-spacing: -0.04em; color: var(--accent); }
+
+  .group { margin-bottom: 1.1rem; }
+
+  .status { display: flex; align-items: center; gap: 0.55rem; margin: 0; font-weight: 600; }
+  .contact-lines { margin: 0; font-style: italic; line-height: 1.8; }
+  .contact ul li { font-size: 1.15rem; line-height: 1.9; }
+  .contact ul a { text-decoration: none; }
+
+  .clock .label { display: flex; align-items: center; }
+  .time { font-size: 2.4rem; font-weight: 700; margin: 0; line-height: 1.1; }
+  .small-time { font-size: 1.6rem; }
+  hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+
+  .cert { display: flex; gap: 0.8rem; align-items: flex-start; margin-bottom: 1rem; }
+  .badge { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); font-weight: 800; }
+
+  .now-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; }
+  .now-head h2 { margin-bottom: 0.4rem; }
+  .now p { margin: 0; }
+  .pulse { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); margin-left: 0.3rem; animation: pulse 2s infinite; }
+  @keyframes pulse { 50% { opacity: 0.35; } }
+
+  .tile { text-decoration: none; color: var(--text); display: flex; flex-direction: column; justify-content: flex-end; min-height: 150px; transition: border-color 0.2s, transform 0.2s; }
+  .tile:hover { border-color: var(--accent); transform: translateY(-2px); color: var(--text); }
+  .tile h2 { margin: 0; font-size: 1.6rem; position: relative; }
+  .tile-sub { position: relative; }
+  .arrow { position: absolute; top: 1.2rem; right: 1.4rem; font-size: 1.6rem; transition: transform 0.2s; }
+  .tile:hover .arrow { transform: translate(3px, -3px); color: var(--accent); }
+  .pattern { position: absolute; inset: 0; opacity: 0.35; transition: opacity 0.2s; pointer-events: none; }
+  .tile:hover .pattern { opacity: 0.6; }
+  .pattern-grid {
+    background-image: linear-gradient(45deg, color-mix(in srgb, var(--accent) 40%, transparent) 25%, transparent 25%, transparent 75%, color-mix(in srgb, var(--accent) 40%, transparent) 75%);
+    background-size: 22px 22px;
+    mask-image: linear-gradient(to left, #000, transparent 75%);
+  }
+  .pattern-dots {
+    background-image: radial-gradient(circle, transparent 5px, var(--accent) 6px, transparent 7px);
+    background-size: 26px 26px;
+    mask-image: linear-gradient(to left, #000, transparent 80%);
+  }
+
+  .terminal-card { display: flex; flex-direction: column; }
+  .quick { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
+  .quick button { background: var(--chip); color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 0.25rem 0.6rem; font-size: 0.78rem; cursor: pointer; }
+  .quick button:hover { color: var(--accent); border-color: var(--accent); }
+
+  .timeline { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem 2.5rem; }
+  .timeline > li { border-left: 2px solid var(--accent); padding-left: 1.1rem; }
+  .timeline h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+  .timeline ul { margin: 0; padding-left: 1.1rem; color: var(--muted); font-size: 0.93rem; }
+  .timeline ul li { margin-bottom: 0.3rem; }
+
+  .edu { margin-bottom: 1rem; }
+  .edu .label { margin-bottom: 0.1rem; }
+
+  .posts li { display: flex; flex-direction: column; margin-bottom: 0.7rem; }
+  .posts a { font-weight: 600; text-decoration: none; }
+
+  .swatches, .foot { padding-top: 1.1rem; padding-bottom: 1.1rem; }
+  .swatches { display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; }
+  .swatch, .mode { flex: none; width: 30px; height: 30px; padding: 0; display: grid; place-items: center; border-radius: 11px; border: 2px solid transparent; cursor: pointer; transition: transform 0.15s; }
+  .swatch:hover, .mode:hover { transform: scale(1.12) rotate(8deg); }
+  .sw-red { background: #ef4444; } .sw-amber { background: #f5b014; } .sw-blue { background: #3b82f6; } .sw-purple { background: #a855f7; } .sw-green { background: #22c55e; }
+  :global([data-accent='red']) .sw-red, :global([data-accent='amber']) .sw-amber, :global([data-accent='blue']) .sw-blue,
+  :global([data-accent='purple']) .sw-purple, :global([data-accent='green']) .sw-green { border-color: var(--text); }
+  .mode { background: var(--chip); border-color: var(--border); color: var(--text); font-size: 1.1rem; }
+
+  @media (max-width: 1080px) {
+    .bento {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-areas:
+        'intro intro'
+        'term term'
+        'certs stack'
+        'contact stack'
+        'clock now'
+        'projects blog'
+        'exp exp'
+        'edu latest'
+        'swatch foot';
+    }
+  }
+  @media (max-width: 680px) {
+    .bento { grid-template-columns: 1fr; grid-template-areas: 'intro' 'term' 'certs' 'projects' 'blog' 'exp' 'stack' 'now' 'contact' 'clock' 'edu' 'latest' 'swatch' 'foot'; }
+    .intro { grid-template-columns: 1fr; }
+    .avatar { order: -1; width: 110px; }
+    .monogram span { font-size: 2.2rem; }
+    .timeline { grid-template-columns: 1fr; }
+    .foot { justify-content: center; text-align: center; }
+    .card { padding: 1.3rem; }
+  }
+</style>

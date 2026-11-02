@@ -1,0 +1,30 @@
+---
+import SubPage from '../../layouts/SubPage.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const fmt = (d: Date) => d.toLocaleDateString('en-IE', { day: 'numeric', month: 'short', year: 'numeric' });
+---
+<SubPage title="Blog" description="Day-to-day notes, lab write-ups and updates." intro="Day-to-day notes, lab write-ups and updates.">
+  <div class="list">
+    {posts.map((p) => (
+      <a class="card post" href={`/blog/${p.id}/`}>
+        <p class="label">{fmt(p.data.date)}</p>
+        <h2>{p.data.title}</h2>
+        {p.data.description && <p class="muted">{p.data.description}</p>}
+        {p.data.tags.length > 0 && <ul class="chips">{p.data.tags.map((t) => <li>#{t}</li>)}</ul>}
+      </a>
+    ))}
+  </div>
+  <p class="muted rss"><a href="/rss.xml">Subscribe via RSS</a></p>
+</SubPage>
+
+<style>
+  .list { display: grid; gap: 1.1rem; }
+  .post { text-decoration: none; color: var(--text); transition: border-color 0.2s, transform 0.2s; }
+  .post:hover { border-color: var(--accent); transform: translateY(-2px); color: var(--text); }
+  .post h2 { font-size: 1.35rem; }
+  .post p.muted { margin: 0.5rem 0 0.8rem; }
+  .rss { text-align: center; margin-top: 1.5rem; }
+</style>
