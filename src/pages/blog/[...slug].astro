@@ -1,28 +1,86 @@
 ---
 import SubPage from '../../layouts/SubPage.astro';
+import Icon from '../../components/Icon.astro';
+import profile from '../../data/profile.json';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog', ({ data }) => !data.draft);
-  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+  const posts = (await getCollection('blog', ({ data }) => !data.draft))
+    .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post, more: posts.filter((p) => p.id !== post.id).slice(0, 3) },
+  }));
 }
 
-const { post } = Astro.props;
-const { Content } = await render(post);
+const { post, more } = Astro.props;
+const { Content, headings } = await render(post);
 const date = post.data.date.toLocaleDateString('en-IE', { day: 'numeric', month: 'long', year: 'numeric' });
-const body = post.body ?? '';
-const minutes = Math.max(1, Math.round(body.split(/\s+/).length / 220));
+const minutes = Math.max(1, Math.round((post.body ?? '').split(/\s+/).length / 220));
+const toc = headings.filter((h) => h.depth === 2);
 ---
-<SubPage title={post.data.title} description={post.data.description} published={post.data.date} intro={`${date} · ${minutes} min read`}>
-  <article class="card prose-card">
-    {post.data.tags.length > 0 && <ul class="chips">{post.data.tags.map((t) => <li>#{t}</li>)}</ul>}
-    <div class="prose"><Content /></div>
-  </article>
-  <p class="back"><a href="/blog/">← All posts</a></p>
+<SubPage title={post.data.title} description={post.data.description} published={post.data.date} intro={`${date} · ${minutes} min read · by ${profile.name}`}>
+  <div class={toc.length > 3 ? 'layout' : 'layout single'}>
+    <article class="card prose-card">
+      {post.data.tags.length > 0 && <ul class="chips">{post.data.tags.map((t) => <li>#{t}</li>)}</ul>}
+      {post.data.description && <p class="standfirst">{post.data.description}</p>}
+      <div class="prose"><Content /></div>
+    </article>
+
+    {toc.length > 3 && (
+      <aside class="side">
+        <nav class="card toc" aria-label="On this page">
+          <p class="label">On this page</p>
+          <ol>{toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+        </nav>
+        <div class="card author">
+          <p class="label">Written by</p>
+          <strong>{profile.name}</strong>
+          <p class="muted small">{profile.role}, Dublin. BTL1 Gold, Security+, MSc Cybersecurity.</p>
+          <a class="btn" href="/#contact"><Icon name="mail" size={15} /> Get in touch</a>
+        </div>
+      </aside>
+    )}
+  </div>
+
+  {more.length > 0 && (
+    <section class="more" aria-labelledby="more-h">
+      <h2 id="more-h" class="label">Keep reading</h2>
+      <div class="more-grid">
+        {more.map((p) => (
+          <a class="card" href={`/blog/${p.id}/`}>
+            <strong>{p.data.title}</strong>
+            <span class="go">Read <Icon name="arrow" size={14} /></span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
 </SubPage>
 
 <style>
-  .prose-card { padding: clamp(1.3rem, 4vw, 2.5rem); }
-  .chips { margin-bottom: 1rem; }
-  .back { margin-top: 1.5rem; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 1.1rem; align-items: start; }
+  .layout.single { grid-template-columns: minmax(0, 1fr); }
+  .prose-card { padding: clamp(1.3rem, 4vw, 2.6rem); }
+  .chips { margin-bottom: 1.2rem; }
+  .standfirst { font-size: 1.15rem; line-height: 1.6; color: var(--muted); max-width: 70ch; margin: 0 0 1.8rem; padding-bottom: 1.6rem; border-bottom: 1px solid var(--border); }
+  .prose { max-width: 74ch; }
+  .side { display: grid; gap: 1.1rem; position: sticky; top: 1rem; }
+  .side .card { padding: 1.2rem 1.3rem; }
+  .toc ol { margin: 0; padding-left: 1.1rem; font-size: 0.88rem; line-height: 1.8; }
+  .toc a { text-decoration: none; color: var(--muted); }
+  .toc a:hover { color: var(--accent-ink); }
+  .author .small { margin: 0.3rem 0 0.9rem; font-size: 0.85rem; }
+  .author .btn { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+  .more { margin-top: 1.8rem; }
+  .more-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.1rem; margin-top: 0.8rem; }
+  .more-grid a { display: flex; flex-direction: column; justify-content: space-between; gap: 0.8rem; text-decoration: none; transition: border-color 0.2s; }
+  .more-grid a:hover { border-color: var(--accent); }
+  .go { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; font-weight: 600; color: var(--accent-ink); }
+  @media (max-width: 960px) {
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    .side { position: static; }
+    .toc { display: none; }
+    .more-grid { grid-template-columns: 1fr; }
+  }
 </style>

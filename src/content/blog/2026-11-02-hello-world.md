@@ -1,6 +1,6 @@
 ---
 title: Hello, world
-date: 2026-11-02
+date: 2026-11-02T09:00:00Z
 description: New domain, new site, and a terminal that actually works.
 tags: [meta]
 ---
