@@ -23,11 +23,12 @@ for (const file of htmlFiles(dist)) {
 
 const csp = [
   "default-src 'self'",
-  `script-src 'self' ${[...hashes].sort().join(' ')}`,
+  // Cloudflare Web Analytics (cookieless): beacon script + reporting endpoint.
+  `script-src 'self' https://static.cloudflareinsights.com ${[...hashes].sort().join(' ')}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self'",
-  "connect-src 'self'",
+  "connect-src 'self' https://cloudflareinsights.com",
   "manifest-src 'self'",
   "object-src 'none'",
   "base-uri 'self'",
